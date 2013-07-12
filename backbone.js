@@ -241,11 +241,32 @@
   // A discrete chunk of data and a bunch of useful, related methods for
   // performing computations and transformations on that data.
 
+  Backbone.instanceStore = function (model, attrs) {
+      var nocache, key;
+
+      // Get important data from the moel
+      key = model.key || model.name && attrs[model.idAttribute] &&
+          model.name + ":" + attrs[model.idAttribute];
+      nocache = model.options && model.options.nocache === true;
+
+      // If model is in the pool, return it. Otherwise, add it.
+      if (!nocache && key) {
+          if (Backbone.Pool[key]) {
+              return Backbone.Pool[key];
+          }
+          else {
+              Backbone.Pool[key] = model;
+              return Backbone.Pool[key];
+          };
+      };
+  };
   // Create a new model with the specified attributes. A client id (`cid`)
   // is automatically generated and assigned for you.
   var Model = Backbone.Model = function(attributes, options) {
-    var defaults;
     var attrs = attributes || {};
+    // Set up the pool for the instance store
+    Backbone.Pool = Backbone.Pool || {};
+
     options || (options = {});
     this.cid = _.uniqueId('c');
     this.attributes = {};
@@ -258,6 +279,8 @@
     this.set(attrs, options);
     this.changed = {};
     this.initialize.apply(this, arguments);
+
+    return Backbone.instanceStore (this, attrs );
   };
 
   // Attach all inheritable methods to the Model prototype.

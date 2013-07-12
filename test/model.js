@@ -33,6 +33,18 @@ $(document).ready(function() {
     equal(model.collection, collection);
   });
 
+  test("initialize with the instance store", function () {
+    var Model = Backbone.Model.extend({
+      name: "testModel",
+      idAttribute: "species"
+    });
+    var model = new Model({species: "fish"});
+    var sameModel = new Model({species: "fish"});
+    var anotherModel = new Model({species: "cat"});
+    strictEqual(model, sameModel);
+    notStrictEqual(model, anotherModel);
+  });
+
   test("initialize with attributes and options", 1, function() {
     var Model = Backbone.Model.extend({
       initialize: function(attributes, options) {
